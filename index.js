@@ -14,11 +14,23 @@ function init() {
         1.8,  // up to down
         1     // forwards to backwards
     );
+    camera.rotation.y = Math.PI / 7; // camera rotation
 
     // Renderer setup
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
+    // Load background image
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load('./media/images/background.png', function(texture) {
+        // Set the scene's background to the loaded texture
+        scene.background = texture;
+    }, undefined, function(error) {
+        console.error(error);
+    });
+
+    // Lighting
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(10, 10, 10).normalize();
     scene.add(light);

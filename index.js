@@ -46,9 +46,10 @@ function init() {
     const loader = new GLTFLoader();
     loader.load('./media/models/pak75.glb', function(gltf) {
         pak75 = gltf.scene;
-        pak75.position.set(6, -0.1, -12.6 * 1.5);
-        pak75.rotation.y = Math.PI / 1.1;
-        pak75.scale.set(1, 1, 1);
+        pak75.position.set(9, -3.1, -14.6 * 1.5);
+        pak75.rotation.y = Math.PI / 1.12;
+        pak75.rotation.x = Math.PI / 0.1004;
+        pak75.scale.set(1.4, 1.4, 1.4);
         scene.add(pak75);
     }, undefined, function(error) {
         console.error(error);
@@ -57,9 +58,9 @@ function init() {
     // Load Custom Bunker
     loader.load('./media/models/bunker.glb', function(gltf) {
         bunker = gltf.scene;
-        bunker.position.set(6, 0, -12 * 1.5);
+        bunker.position.set(9, -3, -14 * 1.5);
         bunker.rotation.y = Math.PI / 1.1;
-        bunker.scale.set(1.4, 1.4, 1.4);
+        bunker.scale.set(1.6, 2.1, 1.6);
         scene.add(bunker);
     }, undefined, function(error) {
         console.error(error);

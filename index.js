@@ -11,6 +11,31 @@ let focusValue = 1.0; // Start focuswaarde
 let targetFocusValue = 1.0; // Doelfocuswaarde voor soepele overgang
 let focusLerpSpeed = 0.05; // Snelheid van de focus-overgang
 
+// Laadscherm elementen
+const loadingScreen = document.getElementById('loading-screen');
+const factElement = document.getElementById('fact');
+
+// Array met feitjes
+const facts = [
+    "This is a 3D test made by Vincent Hoogenraat",
+    "The model was at first a panzer IV, but the coder decided that was not a good choice concerning it was un-historical",
+    "You can hover the mouse over the anti tank gun to make it better visible",
+    "You can shoot the anti-tank gun by clicking your left mouse button"
+];
+
+// Kies een willekeurig feit
+function showRandomFact() {
+    const randomIndex = Math.floor(Math.random() * facts.length);
+    factElement.textContent = facts[randomIndex];
+}
+
+// Toon een feit zodra het laadscherm verschijnt
+showRandomFact();
+
+// Houdt bij of alle modellen zijn geladen
+let modelsLoaded = 0;
+const totalModels = 3; // Aantal te laden modellen: Pak 75, Bunker, Tank
+
 function init() {
     // Scene setup
     scene = new THREE.Scene();
@@ -49,6 +74,7 @@ function init() {
         pak75.rotation.x = Math.PI / 0.1004;
         pak75.scale.set(1.4, 1.4, 1.4);
         scene.add(pak75);
+        modelLoaded();
     }, undefined, function(error) {
         console.error(error);
     });
@@ -60,6 +86,7 @@ function init() {
         bunker.rotation.y = Math.PI / 1.1;
         bunker.scale.set(1.6, 2.1, 1.6);
         scene.add(bunker);
+        modelLoaded();
     }, undefined, function(error) {
         console.error(error);
     });
@@ -70,6 +97,7 @@ function init() {
         tank.position.set(3, 0, 0);
         tank.scale.set(0.01, 0.01, 0.01);
         scene.add(tank);
+        modelLoaded();
     }, undefined, function(error) {
         console.error(error);
     });
@@ -113,6 +141,18 @@ function init() {
     }
 
     window.addEventListener('resize', onWindowResize);
+}
+
+function modelLoaded() {
+    modelsLoaded++;
+    if (modelsLoaded === totalModels) {
+        hideLoadingScreen();
+    }
+}
+
+function hideLoadingScreen() {
+    loadingScreen.style.display = 'none';
+    playLoadingCompleteSound();
 }
 
 // Animation function

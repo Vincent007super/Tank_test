@@ -11,6 +11,8 @@ let focusValue = 1.0; // Start focuswaarde
 let targetFocusValue = 1.0; // Doelfocuswaarde voor soepele overgang
 let focusLerpSpeed = 0.05; // Snelheid van de focus-overgang
 
+let audioContext, audioElement, gainNode;
+
 // Laadscherm elementen
 const loadingScreen = document.getElementById('loading-screen');
 const factElement = document.getElementById('fact');
@@ -153,6 +155,34 @@ function modelLoaded() {
 function hideLoadingScreen() {
     loadingScreen.style.display = 'none';
     playLoadingCompleteSound();
+}
+
+function playLoadingCompleteSound() {
+    // Check if the Web Audio API is supported
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    // Create an audio element and set its source to the desired audio file
+    audioElement = new Audio('./media/audio/engine.mp3');
+    audioElement.loop = true; // Make the audio loop
+    audioElement.crossOrigin = 'anonymous'; // Ensure the audio is processed correctly
+
+    // Create a MediaElementSource from the audio element
+    const track = audioContext.createMediaElementSource(audioElement);
+
+    // Create a gain node for volume control (fade-in effect)
+    gainNode = audioContext.createGain();
+    gainNode.gain.value = 0; // Start with volume at 0
+
+    // Connect the audio element to the gain node and then to the audio context destination
+    track.connect(gainNode).connect(audioContext.destination);
+
+    // Play the audio
+    audioElement.play();
+
+    // Apply a fade-in effect over 3 seconds
+    gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 5);
 }
 
 // Animation function

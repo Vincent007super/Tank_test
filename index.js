@@ -7,26 +7,24 @@ import { BokehPass } from './node_modules/three/examples/jsm/postprocessing/Boke
 let scene, camera, renderer, composer, pak75, tank, bunker;
 let mouseX = 0;
 let bokehPass;
-let focusValue = 1.0;  // Startfocuswaarde
+let focusValue = 1.0; // Start focuswaarde
+let targetFocusValue = 1.0; // Doelfocuswaarde voor soepele overgang
+let focusLerpSpeed = 0.05; // Snelheid van de focus-overgang
 
 function init() {
     // Scene setup
     scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0xaaaaaa, 0.05); // Mist effect
+    scene.fog = new THREE.FogExp2(0xaaaaaa, 0.05);
 
     // Camera setup
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(
-        4.68, // left to right
-        1.8,  // up to down
-        1     // forwards to backwards
-    );
-    camera.rotation.y = Math.PI / 7; // camera rotation
+    camera.position.set(4.68, 1.8, 1);
+    camera.rotation.y = Math.PI / 7;
 
     // Renderer setup
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.domElement.style.filter = 'blur(2px)'; // Background blur effect
+    renderer.domElement.style.filter = 'blur(1px)';
     document.body.appendChild(renderer.domElement);
 
     // Load background image
@@ -92,9 +90,9 @@ function init() {
     // Event listeners for mouse hover
     window.addEventListener('mousemove', onDocumentMouseMove);
     window.addEventListener('mouseout', onMouseOut);
-    
+
     function onDocumentMouseMove(event) {
-        mouseX = (event.clientX / window.innerWidth) * 2 - 1; // Normaleer muispositie tussen -1 en 1
+        mouseX = (event.clientX / window.innerWidth) * 2 - 1;
         
         // Check for mouse over Pak 75
         const mouse = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
@@ -104,18 +102,14 @@ function init() {
         // Detect object intersection
         const intersects = raycaster.intersectObject(pak75);
         if (intersects.length > 0) {
-            // Muis over Pak 75
-            focusValue = 14.0; // Focus op Pak 75
-            bokehPass.uniforms.focus.value = focusValue; // Directe update
+            targetFocusValue = 15.5; // Focus op Pak 75
         } else {
-            focusValue = 1.0; // Focus terug naar tank
-            bokehPass.uniforms.focus.value = focusValue; // Directe update
+            targetFocusValue = 1.0; // Focus terug naar tank
         }
     }
 
     function onMouseOut() {
-        focusValue = 1.0; // Focus terug naar tank bij muis buiten
-        bokehPass.uniforms.focus.value = focusValue; // Directe update
+        targetFocusValue = 1.0; // Focus terug naar tank bij muis buiten
     }
 
     window.addEventListener('resize', onWindowResize);
@@ -124,8 +118,19 @@ function init() {
 // Animation function
 function animate() {
     requestAnimationFrame(animate);
-    // Interactieve camera-beweging op basis van de muis
-    camera.position.x = 4.68 * (1 + mouseX * 0.05); // Pas de X-waarde van de camera aan met een kleine factor
+
+    // Smooth focus transition
+    focusValue = THREE.MathUtils.lerp(focusValue, targetFocusValue, focusLerpSpeed);
+    bokehPass.uniforms.focus.value = focusValue;
+
+    // Light tank shake effect to simulate engine running
+    if (tank) {
+        const shakeAmount = 0.00005;
+        tank.position.x += (Math.sin(Date.now() * 0.01) * shakeAmount);
+        tank.position.z += (Math.cos(Date.now() * 0.01) * shakeAmount);
+    }
+
+    camera.position.x = 4.68 * (1 + mouseX * 0.05);
 
     composer.render();
 }
